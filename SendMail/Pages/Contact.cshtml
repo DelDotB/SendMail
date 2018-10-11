@@ -1,19 +1,65 @@
 ﻿@page
 @model ContactModel
+@using Microsoft.AspNetCore.Mvc.RazorPages
+@using MimeKit
+@using MailKit.Net.Smtp
+
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@functions {
+	public class ContactModel : PageModel
+	{
+		public string PostedMessage { get; set; } = "";
+		public async Task<IActionResult> OnPostAsync()
+		{
+			return Redirect("/contact");
+		}
+		public void OnGet(int id)
+		{
+			ViewData["PostedMessage"] = "Your message has been sent [viewdata]";
+			PostedMessage = "Your message has been sent [property]";
+		}
+
+		public void SendMail()
+		{
+			var message = new MimeMessage();
+			message.From.Add(new MailboxAddress("Rodger Cooley", "rocooley@utmb.edu"));
+			message.To.Add(new MailboxAddress("rodger", "rodger.cooley@gmail.com"));
+			message.Subject = "testing app";
+			message.Body = new TextPart("plain")
+			{
+				Text = "hello world from app"
+			};
+			using(var client = new SmtpClient())
+			{
+				client.Connect("smtp.gmail.com", 587, false);
+				client.Authenticate("deldotb@gmail.com", "Snarf5Smegma6");
+				client.Send(message);
+				client.Disconnect(true);
+
+			}
+
+		}
+
+	}
+}
+
+
+
 @{
-    ViewData["Title"] = "Contact";
+	ViewData["Title"] = "Contact";
 }
 <h2>@ViewData["Title"]</h2>
-<h3>@Model.Message</h3>
+<h3>@Model.PostedMessage</h3>
 
 <address>
-    One Microsoft Way<br />
-    Redmond, WA 98052-6399<br />
-    <abbr title="Phone">P:</abbr>
-    425.555.0100
+	One Microsoft Way<br />
+	Redmond, WA 98052-6399<br />
+	<abbr title="Phone">P:</abbr>
+	425.555.0100
 </address>
 
 <address>
-    <strong>Support:</strong> <a href="mailto:Support@example.com">Support@example.com</a><br />
-    <strong>Marketing:</strong> <a href="mailto:Marketing@example.com">Marketing@example.com</a>
+	<strong>Support:</strong> <a href="mailto:Support@example.com">Support@example.com</a><br />
+	<strong>Marketing:</strong> <a href="mailto:Marketing@example.com">Marketing@example.com</a>
 </address>
